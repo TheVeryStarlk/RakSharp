@@ -19,6 +19,16 @@ public interface IRakConnection : IAsyncDisposable
     public short MaximumTransmissionUnit { get; }
 
     /// <summary>
+    /// Reads data from the connected <see cref="IPEndPoint"/>.
+    /// </summary>
+    /// <param name="token">The token to monitor for cancellation requests.</param>
+    /// <returns>
+    /// A <see cref="Task"/> that represents the asynchronous read operation,
+    /// which wraps the <see cref="Memory{T}"/> containing the contents of data.
+    /// </returns>
+    public Task<Memory<byte>> ReadAsync(CancellationToken token = default);
+
+    /// <summary>
     /// Writes data to the connected <see cref="IPEndPoint"/>.
     /// </summary>
     /// <param name="memory">The data to send.</param>
@@ -29,16 +39,6 @@ public interface IRakConnection : IAsyncDisposable
         Memory<byte> memory,
         Reliability reliability = Reliability.Unreliable,
         CancellationToken token = default);
-
-    /// <summary>
-    /// Reads data from the connected <see cref="IPEndPoint"/>.
-    /// </summary>
-    /// <param name="token">The token to monitor for cancellation requests.</param>
-    /// <returns>
-    /// A <see cref="Task"/> that represents the asynchronous read operation,
-    /// which wraps the <see cref="Memory{T}"/> containing the contents of data.
-    /// </returns>
-    public Task<Memory<byte>> ReadAsync(CancellationToken token = default);
 
     /// <summary>
     /// Disconnects the connection and stops all operations.
