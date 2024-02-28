@@ -57,4 +57,9 @@ public sealed class RakConnection : IRakConnection
     {
         throw new NotImplementedException();
     }
+
+    public ValueTask DisposeAsync()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -5,7 +5,7 @@ namespace RakSharp;
 /// <summary>
 /// Represents a RakNet connection to an <see cref="IPEndPoint"/>.
 /// </summary>
-public interface IRakConnection
+public interface IRakConnection : IAsyncDisposable
 {
     /// <summary>
     /// The <see cref="IPEndPoint"/> which the connection is connected to.
