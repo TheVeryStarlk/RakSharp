@@ -1,4 +1,4 @@
-﻿namespace RakSharp.Networking.Packets.Online;
+﻿namespace RakSharp.Networking.Packets.Online.FrameSet;
 
 internal sealed class FrameSetPacket : IIngoingPacket<FrameSetPacket>, IOutgoingPacket
 {
@@ -31,7 +31,10 @@ internal sealed class FrameSetPacket : IIngoingPacket<FrameSetPacket>, IOutgoing
                     OrderedFrameIndex = reader.ReadSmallInteger(),
                     OrderChannel = reader.ReadByte()
                 },
-                _ => throw new ArgumentOutOfRangeException(nameof(reliability), reliability, "Unknown flag.")
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(reliability),
+                    reliability,
+                    "Unknown reliability.")
             };
 
             flag.IsSplit = isSplit;
@@ -76,7 +79,10 @@ internal sealed class FrameSetPacket : IIngoingPacket<FrameSetPacket>, IOutgoing
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(frame.Flag), frame.Flag, "Unknown flag.");
+                    throw new ArgumentOutOfRangeException(
+                        nameof(frame.Flag.Reliability),
+                        frame.Flag.Reliability,
+                        "Unknown reliability.");
             }
 
             writer.Write(frame.Memory);
@@ -133,12 +139,4 @@ internal sealed class ReliableOrderedFlag : ReliableFlag
     public required int OrderedFrameIndex { get; init; }
 
     public required byte OrderChannel { get; init; }
-}
-
-internal enum Reliability
-{
-    Unreliable,
-    UnreliableSequenced,
-    Reliable,
-    ReliableOrdered
 }

@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using RakSharp.Networking.Packets.Online.FrameSet;
 
 namespace RakSharp;
 
@@ -21,9 +22,13 @@ public interface IRakConnection : IAsyncDisposable
     /// Writes data to the connected <see cref="IPEndPoint"/>.
     /// </summary>
     /// <param name="memory">The data to send.</param>
+    /// <param name="reliability">The <see cref="Reliability"/> type to send the data with.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous write operation.</returns>
-    public Task WriteAsync(Memory<byte> memory, CancellationToken token = default);
+    public Task WriteAsync(
+        Memory<byte> memory,
+        Reliability reliability = Reliability.Unreliable,
+        CancellationToken token = default);
 
     /// <summary>
     /// Reads data from the connected <see cref="IPEndPoint"/>.

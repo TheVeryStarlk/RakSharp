@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using RakSharp.Networking.Packets.Online.FrameSet;
 
 namespace RakSharp;
 
@@ -45,7 +46,10 @@ public sealed class RakConnection : IRakConnection
         throw new NotImplementedException();
     }
 
-    public Task WriteAsync(Memory<byte> memory, CancellationToken token = default)
+    public Task WriteAsync(
+        Memory<byte> memory,
+        Reliability reliability = Reliability.Unreliable,
+        CancellationToken token = default)
     {
         throw new NotImplementedException();
     }
