@@ -4,20 +4,6 @@ using RakSharp.Networking.Packets;
 
 namespace RakSharp.Networking;
 
-internal sealed record Message(int Identifier, ReadOnlyMemory<byte> Memory)
-{
-    public T As<T>() where T : IIngoingPacket<T>
-    {
-        if (T.Identifier != Identifier)
-        {
-            throw new ArgumentException($"Expected {T.Identifier} but got {Identifier} instead.");
-        }
-
-        var reader = new MemoryReader(Memory);
-        return T.Read(reader);
-    }
-}
-
 internal static class DuplexPipeExtensions
 {
     public static async Task<Memory<byte>> ReadAsync(
@@ -46,5 +32,19 @@ internal static class DuplexPipeExtensions
         var memory = duplexPipe.Output.GetMemory();
         duplexPipe.Output.Advance(Write(packet, memory));
         await duplexPipe.Output.FlushAsync(cancellationToken);
+    }
+}
+
+internal sealed record Message(int Identifier, ReadOnlyMemory<byte> Memory)
+{
+    public T As<T>() where T : IIngoingPacket<T>
+    {
+        if (T.Identifier != Identifier)
+        {
+            throw new ArgumentException($"Expected {T.Identifier} but got {Identifier} instead.");
+        }
+
+        var reader = new MemoryReader(Memory);
+        return T.Read(reader);
     }
 }

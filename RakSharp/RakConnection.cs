@@ -3,27 +3,6 @@ using RakSharp.Networking.Packets.Online.FrameSet;
 
 namespace RakSharp;
 
-/// <summary>
-/// Stores options that control the <see cref="RakConnection"/>.
-/// </summary>
-public sealed class RakConnectionOptions
-{
-    /// <summary>
-    /// The <see cref="IPEndPoint"/> to connect to.
-    /// </summary>
-    public required IPEndPoint RemoteEndPoint { get; set; }
-
-    /// <summary>
-    /// Specifies for how long the <see cref="RakConnection"/> should attempt to connect before it times out.
-    /// </summary>
-    public required TimeSpan TimeOut { get; set; }
-
-    /// <summary>
-    /// The maximum amount of bytes that can be transmitted across the network.
-    /// </summary>
-    public required short MaximumTransmissionUnit { get; set; }
-}
-
 /// <inheritdoc />
 public sealed class RakConnection : IRakConnection
 {
@@ -68,4 +47,25 @@ public sealed class RakConnection : IRakConnection
     {
         throw new NotImplementedException();
     }
+}
+
+/// <summary>
+/// Stores options that control the <see cref="RakConnection"/>.
+/// </summary>
+public sealed class RakConnectionOptions
+{
+    /// <summary>
+    /// The <see cref="IPEndPoint"/> to connect to.
+    /// </summary>
+    public required IPEndPoint RemoteEndPoint { get; set; }
+
+    /// <summary>
+    /// Specifies for how long the <see cref="RakConnection"/> should attempt to connect before it times out.
+    /// </summary>
+    public required TimeSpan TimeOut { get; set; }
+
+    /// <summary>
+    /// The maximum amount of bytes that can be transmitted across the network.
+    /// </summary>
+    public required short MaximumTransmissionUnit { get; set; }
 }
