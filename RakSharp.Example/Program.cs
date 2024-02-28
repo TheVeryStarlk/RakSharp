@@ -1,3 +1,9 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using System.Net;
+using RakSharp;
 
-Console.WriteLine("Hello, World!");
+await using var connection = await RakConnection.ConnectAsync(new RakConnectionOptions
+{
+    RemoteEndPoint = new IPEndPoint(IPAddress.Any, 19132),
+    TimeOut = TimeSpan.FromSeconds(5),
+    MaximumTransmissionUnit = 1492
+});
