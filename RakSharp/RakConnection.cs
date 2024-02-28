@@ -23,8 +23,10 @@ public sealed class RakConnectionOptions
     public required short MaximumTransmissionUnit { get; set; }
 }
 
+/// <inheritdoc />
 public sealed class RakConnection : IRakConnection
 {
+    /// <inheritdoc />
     public IPEndPoint RemoteEndPoint => throw new NotImplementedException();
 
     public short MaximumTransmissionUnit => throw new NotImplementedException();
