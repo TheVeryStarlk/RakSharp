@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace RakSharp.Networking.Packets.Online;
+namespace RakSharp.Packets.Online;
 
 internal sealed class ConnectionRequestAcceptedPacket : IIngoingPacket<ConnectionRequestAcceptedPacket>
 {

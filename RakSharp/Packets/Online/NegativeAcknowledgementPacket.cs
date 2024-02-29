@@ -1,4 +1,4 @@
-﻿namespace RakSharp.Networking.Packets.Online;
+﻿namespace RakSharp.Packets.Online;
 
 internal sealed class NegativeAcknowledgementPacket : IOutgoingPacket
 {

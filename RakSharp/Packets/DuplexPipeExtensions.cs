@@ -1,8 +1,7 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
-using RakSharp.Networking.Packets;
 
-namespace RakSharp.Networking;
+namespace RakSharp.Packets;
 
 internal static class DuplexPipeExtensions
 {

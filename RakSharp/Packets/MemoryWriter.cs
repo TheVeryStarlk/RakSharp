@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace RakSharp.Networking;
+namespace RakSharp.Packets;
 
 internal ref struct MemoryWriter(Memory<byte> memory)
 {

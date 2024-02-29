@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text;
 
-namespace RakSharp.Networking;
+namespace RakSharp.Packets;
 
 internal ref struct MemoryReader(ReadOnlyMemory<byte> memory)
 {

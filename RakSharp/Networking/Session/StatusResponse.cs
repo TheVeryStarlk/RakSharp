@@ -1,4 +1,4 @@
-﻿namespace RakSharp.Session;
+﻿namespace RakSharp.Networking.Session;
 
 /// <summary>
 /// A pong result from a RakNet <see cref="IPEndPoint"/>.

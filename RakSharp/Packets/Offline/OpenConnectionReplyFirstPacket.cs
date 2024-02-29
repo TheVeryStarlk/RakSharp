@@ -1,4 +1,4 @@
-﻿namespace RakSharp.Networking.Packets.Offline;
+﻿namespace RakSharp.Packets.Offline;
 
 internal sealed class OpenConnectionReplyFirstPacket : IIngoingPacket<OpenConnectionReplyFirstPacket>
 {

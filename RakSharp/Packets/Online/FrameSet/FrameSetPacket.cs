@@ -1,4 +1,4 @@
-﻿namespace RakSharp.Networking.Packets.Online.FrameSet;
+﻿namespace RakSharp.Packets.Online.FrameSet;
 
 internal sealed class FrameSetPacket : IIngoingPacket<FrameSetPacket>, IOutgoingPacket
 {

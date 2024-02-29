@@ -1,4 +1,4 @@
-﻿namespace RakSharp.Networking.Packets.Online.FrameSet;
+﻿namespace RakSharp.Packets.Online.FrameSet;
 
 /// <summary>
 /// Stores the different reliability types.

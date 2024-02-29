@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace RakSharp.Networking.Packets.Offline;
+namespace RakSharp.Packets.Offline;
 
 internal sealed class OpenConnectionReplySecondPacket : IIngoingPacket<OpenConnectionReplySecondPacket>
 {

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace RakSharp.Client;
+namespace RakSharp.Networking;
 
 internal sealed class RakClient : ConnectionContext
 {

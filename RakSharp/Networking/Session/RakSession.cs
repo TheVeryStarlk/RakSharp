@@ -1,9 +1,8 @@
 ﻿using System.Net;
-using RakSharp.Client;
-using RakSharp.Networking;
-using RakSharp.Networking.Packets.Offline;
+using RakSharp.Packets;
+using RakSharp.Packets.Offline;
 
-namespace RakSharp.Session;
+namespace RakSharp.Networking.Session;
 
 /// <summary>
 /// Stores options that control the <see cref="RakSession"/>.

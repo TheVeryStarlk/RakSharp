@@ -1,8 +1,7 @@
 ﻿using System.Net;
-using RakSharp.Client;
-using RakSharp.Networking.Packets.Online.FrameSet;
+using RakSharp.Packets.Online.FrameSet;
 
-namespace RakSharp.Connection;
+namespace RakSharp.Networking.Connection;
 
 /// <inheritdoc />
 public sealed class RakConnection : IRakConnection

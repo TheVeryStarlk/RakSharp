@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using RakSharp.Session;
+using RakSharp.Networking.Session;
 
 var status = await RakSession.PingAsync(new RakSessionOptions
 {

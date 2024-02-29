@@ -1,4 +1,4 @@
-﻿namespace RakSharp.Networking.Packets;
+﻿namespace RakSharp.Packets;
 
 internal interface IPacket
 {
