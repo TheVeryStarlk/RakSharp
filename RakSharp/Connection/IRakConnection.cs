@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using RakSharp.Networking.Packets.Online.FrameSet;
 
-namespace RakSharp;
+namespace RakSharp.Connection;
 
 /// <summary>
 /// Represents a RakNet connection to an <see cref="IPEndPoint"/>.

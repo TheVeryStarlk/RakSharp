@@ -6,21 +6,28 @@ namespace RakSharp.Networking;
 
 internal static class DuplexPipeExtensions
 {
-    public static async Task<Memory<byte>> ReadAsync(
+    public static async Task<Message> ReadAsync(
         this IDuplexPipe duplexPipe,
         CancellationToken cancellationToken)
     {
         var result = await duplexPipe.Input.ReadAsync(cancellationToken);
         var buffer = result.Buffer;
-        duplexPipe.Input.AdvanceTo(buffer.Start, buffer.End);
-        return buffer.ToArray();
+        duplexPipe.Input.AdvanceTo(buffer.End);
+
+        var array = buffer.ToArray();
+        return new Message(array[0], array.AsMemory()[1..]);
     }
 
     public static async Task WriteAsync<T>(
         this IDuplexPipe duplexPipe,
-        IOutgoingPacket packet,
+        T packet,
         CancellationToken cancellationToken) where T : IOutgoingPacket
     {
+        var memory = duplexPipe.Output.GetMemory();
+        duplexPipe.Output.Advance(Write(packet, memory));
+        await duplexPipe.Output.FlushAsync(cancellationToken);
+        return;
+
         static int Write(IOutgoingPacket packet, Memory<byte> memory)
         {
             var writer = new MemoryWriter(memory);
@@ -28,10 +35,6 @@ internal static class DuplexPipeExtensions
             packet.Write(ref writer);
             return writer.Position;
         }
-
-        var memory = duplexPipe.Output.GetMemory();
-        duplexPipe.Output.Advance(Write(packet, memory));
-        await duplexPipe.Output.FlushAsync(cancellationToken);
     }
 }
 
