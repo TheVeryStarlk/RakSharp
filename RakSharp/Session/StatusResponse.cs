@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace RakSharp.Session;
+﻿namespace RakSharp.Session;
 
 /// <summary>
 /// A pong result from a RakNet <see cref="IPEndPoint"/>.

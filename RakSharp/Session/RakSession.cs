@@ -13,12 +13,12 @@ public sealed class RakSessionOptions
     /// <summary>
     /// The <see cref="IPEndPoint"/> to connect to.
     /// </summary>
-    public required IPEndPoint RemoteEndPoint { get; set; }
+    public required IPEndPoint RemoteEndPoint { get; init; }
 
     /// <summary>
     /// Specifies for how long a <see cref="RakSession"/> task should be running before it times out.
     /// </summary>
-    public required TimeSpan TimeOut { get; set; }
+    public required TimeSpan TimeOut { get; init; }
 }
 
 /// <summary>
@@ -43,7 +43,8 @@ public static class RakSession
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeOutSource.Token);
         await using var client = await RakClient.ConnectAsync(options.RemoteEndPoint);
 
-        await client.Transport.WriteAsync(new UnconnectedPingPacket
+        await client.Transport.WriteAsync(
+            new UnconnectedPingPacket
             {
                 Time = DateTime.UtcNow.Millisecond,
                 Client = Random.Shared.NextInt64()

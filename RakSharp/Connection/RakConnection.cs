@@ -64,15 +64,15 @@ public sealed class RakConnectionOptions
     /// <summary>
     /// The <see cref="IPEndPoint"/> to connect to.
     /// </summary>
-    public required IPEndPoint RemoteEndPoint { get; set; }
+    public required IPEndPoint RemoteEndPoint { get; init; }
 
     /// <summary>
     /// Specifies for how long the <see cref="RakConnection"/> should attempt to connect before it times out.
     /// </summary>
-    public required TimeSpan TimeOut { get; set; }
+    public required TimeSpan TimeOut { get; init; }
 
     /// <summary>
     /// The maximum amount of bytes that can be transmitted across the network.
     /// </summary>
-    public required short MaximumTransmissionUnit { get; set; }
+    public required short MaximumTransmissionUnit { get; init; }
 }
