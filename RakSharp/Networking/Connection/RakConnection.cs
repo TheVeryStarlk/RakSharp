@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using RakSharp.Networking.Session;
+using RakSharp.Packets;
 using RakSharp.Packets.Online.FrameSet;
 
 namespace RakSharp.Networking.Connection;
@@ -10,6 +12,9 @@ public sealed class RakConnection : IRakConnection
 
     public short MaximumTransmissionUnit => throw new NotImplementedException();
 
+    private RakConnectionState state;
+
+    private readonly CancellationTokenSource source = new CancellationTokenSource();
     private readonly RakClient client;
 
     private RakConnection(RakClient client)
@@ -18,7 +23,7 @@ public sealed class RakConnection : IRakConnection
     }
 
     /// <summary>
-    /// Attempts to initiate a <see cref="RakConnection"/>.
+    /// Attempts ping the <see cref="IPEndPoint"/> then tries to initiate a <see cref="RakConnection"/>.
     /// </summary>
     /// <param name="options">The provided <see cref="RakConnectionOptions"/> to control the <see cref="RakConnection"/>.</param>
     /// <returns>
@@ -26,9 +31,17 @@ public sealed class RakConnection : IRakConnection
     /// which wraps the initiated <see cref="RakConnection"/>.
     /// </returns>
     /// <exception cref="NotImplementedException">The method is not implemented yet.</exception>
-    public static Task<IRakConnection> ConnectAsync(RakConnectionOptions options)
+    public static async Task<IRakConnection> ConnectAsync(RakConnectionOptions options)
     {
-        throw new NotImplementedException();
+        _ = await RakSession.PingAsync(new RakSessionOptions
+        {
+            RemoteEndPoint = options.RemoteEndPoint,
+            TimeOut = options.TimeOut
+        });
+
+        var connection = new RakConnection(await RakClient.ConnectAsync(options.RemoteEndPoint));
+        _ = connection.StartAsync();
+        return connection;
     }
 
     public Task<Memory<byte>> ReadAsync(CancellationToken token = default)
@@ -44,14 +57,37 @@ public sealed class RakConnection : IRakConnection
         throw new NotImplementedException();
     }
 
-    public Task DisconnectAsync()
+    public async Task DisconnectAsync()
     {
-        throw new NotImplementedException();
+        await source.CancelAsync();
+
+        if (state is RakConnectionState.Handshaking or RakConnectionState.Disconnected)
+        {
+            return;
+        }
+
+        state = RakConnectionState.Disconnected;
     }
 
     public async ValueTask DisposeAsync()
     {
         await client.DisposeAsync();
+    }
+
+    private async Task StartAsync()
+    {
+        while (!source.IsCancellationRequested)
+        {
+            try
+            {
+
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                throw;
+            }
+        }
     }
 }
 

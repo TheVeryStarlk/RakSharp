@@ -52,6 +52,12 @@ internal sealed class RakClient : ConnectionContext
         return this;
     }
 
+    public override async ValueTask DisposeAsync()
+    {
+        await Transport.Output.CompleteAsync().ConfigureAwait(false);
+        await Transport.Input.CompleteAsync().ConfigureAwait(false);
+    }
+
     private async Task ExecuteAsync()
     {
         Exception? sendError = null;
@@ -204,12 +210,6 @@ internal sealed class RakClient : ConnectionContext
                 break;
             }
         }
-    }
-
-    public override async ValueTask DisposeAsync()
-    {
-        await Transport.Output.CompleteAsync().ConfigureAwait(false);
-        await Transport.Input.CompleteAsync().ConfigureAwait(false);
     }
 }
 
