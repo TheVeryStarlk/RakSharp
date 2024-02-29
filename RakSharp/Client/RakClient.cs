@@ -41,12 +41,6 @@ internal sealed class RakClient : ConnectionContext
         return client;
     }
 
-    public override async ValueTask DisposeAsync()
-    {
-        await Transport.Output.CompleteAsync().ConfigureAwait(false);
-        await Transport.Input.CompleteAsync().ConfigureAwait(false);
-    }
-
     public async ValueTask<ConnectionContext> StartAsync()
     {
         await socket.ConnectAsync(endPoint).ConfigureAwait(false);
@@ -210,6 +204,12 @@ internal sealed class RakClient : ConnectionContext
                 break;
             }
         }
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await Transport.Output.CompleteAsync().ConfigureAwait(false);
+        await Transport.Input.CompleteAsync().ConfigureAwait(false);
     }
 }
 

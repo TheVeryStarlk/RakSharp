@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using RakSharp.Client;
 using RakSharp.Networking.Packets.Online.FrameSet;
 
 namespace RakSharp.Connection;
@@ -6,10 +7,16 @@ namespace RakSharp.Connection;
 /// <inheritdoc />
 public sealed class RakConnection : IRakConnection
 {
-    /// <inheritdoc />
     public IPEndPoint RemoteEndPoint => throw new NotImplementedException();
 
     public short MaximumTransmissionUnit => throw new NotImplementedException();
+
+    private readonly RakClient client;
+
+    private RakConnection(RakClient client)
+    {
+        this.client = client;
+    }
 
     /// <summary>
     /// Attempts to initiate a <see cref="RakConnection"/>.
@@ -43,9 +50,9 @@ public sealed class RakConnection : IRakConnection
         throw new NotImplementedException();
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
-        throw new NotImplementedException();
+        await client.DisposeAsync();
     }
 }
 

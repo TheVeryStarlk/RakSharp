@@ -16,13 +16,13 @@ public sealed class RakSessionOptions
     public required IPEndPoint RemoteEndPoint { get; set; }
 
     /// <summary>
-    /// Specifies for how long the <see cref="RakSession"/> should attempt to connect before it times out.
+    /// Specifies for how long a <see cref="RakSession"/> task should be running before it times out.
     /// </summary>
     public required TimeSpan TimeOut { get; set; }
 }
 
 /// <summary>
-/// Provides ways to deal with offline RakNet sessions.
+/// Provides ways to deal with RakNet's offline state, as sessions.
 /// </summary>
 public static class RakSession
 {
