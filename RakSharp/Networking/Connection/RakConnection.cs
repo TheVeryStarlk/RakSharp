@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using RakSharp.Networking.Session;
-using RakSharp.Packets;
 using RakSharp.Packets.Offline;
 using RakSharp.Packets.Online;
 using RakSharp.Packets.Online.FrameSet;
@@ -23,7 +22,7 @@ public sealed class RakConnection : IRakConnection
     private RakConnection(RakClient client, IPEndPoint remoteEndPoint, short maximumTransmissionUnit)
     {
         this.client = client;
-        transport = new RakConnectionTransport(client.Transport, source.Token);
+        transport = new RakConnectionTransport(client, source.Token);
 
         RemoteEndPoint = remoteEndPoint;
         MaximumTransmissionUnit = maximumTransmissionUnit;
@@ -77,13 +76,14 @@ public sealed class RakConnection : IRakConnection
 
         await transport.WriteAsync<DisconnectPacket>(new DisconnectPacket(), Reliability.Unreliable);
         await source.CancelAsync();
-
+        client.Disconnect();
         state = RakConnectionState.Disconnected;
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        await client.DisposeAsync();
+        client.Dispose();
+        return ValueTask.CompletedTask;
     }
 
     private async Task StartAsync()
@@ -140,19 +140,19 @@ public sealed class RakConnection : IRakConnection
 
     private async Task HandleHandshakeAsync()
     {
-        await client.Transport.WriteAsync(new OpenConnectionRequestFirstPacket
+        await client.WriteAsync(new OpenConnectionRequestFirstPacket
             {
                 ProtocolVersion = RakSharp.ProtocolVersion,
                 MaximumTransmissionUnit = MaximumTransmissionUnit
             },
             source.Token);
 
-        var message = await client.Transport.ReadAsync(source.Token);
+        var message = await client.ReadAsync(source.Token);
         var replyFirst = message.As<OpenConnectionReplyFirstPacket>();
 
         MaximumTransmissionUnit = replyFirst.MaximumTransmissionUnit;
 
-        await client.Transport.WriteAsync(new OpenConnectionRequestSecondPacket
+        await client.WriteAsync(new OpenConnectionRequestSecondPacket
             {
                 Server = RemoteEndPoint,
                 MaximumTransmissionUnit = MaximumTransmissionUnit,
@@ -160,7 +160,7 @@ public sealed class RakConnection : IRakConnection
             },
             source.Token);
 
-        message = await client.Transport.ReadAsync(source.Token);
+        message = await client.ReadAsync(source.Token);
         var replySecond = message.As<OpenConnectionReplySecondPacket>();
         MaximumTransmissionUnit = replySecond.MaximumTransmissionUnit;
 

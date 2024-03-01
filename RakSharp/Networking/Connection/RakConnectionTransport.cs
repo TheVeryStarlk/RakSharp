@@ -6,13 +6,13 @@ using RakSharp.Packets.Online.FrameSet;
 
 namespace RakSharp.Networking.Connection;
 
-internal sealed class RakConnectionTransport(IDuplexPipe duplexPipe, CancellationToken token)
+internal sealed class RakConnectionTransport(RakClient client, CancellationToken token)
 {
     private int sequenceNumber;
 
     public async Task<Message[]> ReadAsync()
     {
-        var message = await duplexPipe.ReadAsync(token);
+        var message = await client.ReadAsync(token);
 
         if (message.Identifier is 0x80)
         {
@@ -40,7 +40,7 @@ internal sealed class RakConnectionTransport(IDuplexPipe duplexPipe, Cancellatio
         using var owner = MemoryOwner<byte>.Allocate(RakSharp.MaximumTransmissionUnit);
         using var slicedOwner = owner[..packet.Write<T>(owner.Memory)];
 
-        await duplexPipe.WriteAsync(
+        await client.WriteAsync(
             new FrameSetPacket
             {
                 SequenceNumber = sequenceNumber++,

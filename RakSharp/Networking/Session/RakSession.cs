@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using RakSharp.Packets;
 using RakSharp.Packets.Offline;
 
 namespace RakSharp.Networking.Session;
@@ -40,9 +39,9 @@ public static class RakSession
         timeOutSource.CancelAfter(options.TimeOut);
 
         using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, timeOutSource.Token);
-        await using var client = await RakClient.ConnectAsync(options.RemoteEndPoint);
+        using var client = await RakClient.ConnectAsync(options.RemoteEndPoint);
 
-        await client.Transport.WriteAsync(
+        await client.WriteAsync(
             new UnconnectedPingPacket
             {
                 Time = DateTime.UtcNow.Millisecond,
@@ -50,7 +49,7 @@ public static class RakSession
             },
             timeOutSource.Token);
 
-        var message = await client.Transport.ReadAsync(timeOutSource.Token);
+        var message = await client.ReadAsync(timeOutSource.Token);
         var pong = message.As<UnconnectedPongPacket>();
 
         return new StatusResponse(pong.Message);
