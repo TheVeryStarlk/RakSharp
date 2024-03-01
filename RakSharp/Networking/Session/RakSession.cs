@@ -4,7 +4,7 @@ using RakSharp.Packets.Offline;
 namespace RakSharp.Networking.Session;
 
 /// <summary>
-/// Stores options that control the <see cref="RakSession"/>.
+/// Stores options that controls different <see cref="RakSession"/> operations.
 /// </summary>
 public sealed class RakSessionOptions
 {
@@ -14,7 +14,7 @@ public sealed class RakSessionOptions
     public required IPEndPoint RemoteEndPoint { get; init; }
 
     /// <summary>
-    /// Specifies for how long a <see cref="RakSession"/> task should be running before it times out.
+    /// Specifies for how long a <see cref="RakSession"/> operation should be running before it times out.
     /// </summary>
     public required TimeSpan TimeOut { get; init; }
 }
@@ -25,9 +25,9 @@ public sealed class RakSessionOptions
 public static class RakSession
 {
     /// <summary>
-    /// Tries to ping a RakNet server.
+    /// Tries to ping a RakNet <see cref="IPEndPoint"/>.
     /// </summary>
-    /// <param name="options">The provided <see cref="RakSessionOptions"/> to control the <see cref="RakSession"/>.</param>
+    /// <param name="options">The provided <see cref="RakSessionOptions"/> to control the <see cref="RakSession"/> ping operation.</param>
     /// <param name="token">The token to monitor for cancellation requests.</param>
     /// <returns>
     /// A <see cref="Task"/> that represents the asynchronous read operation,

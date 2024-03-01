@@ -46,3 +46,17 @@ internal sealed class RakClient : IDisposable
         socket.Dispose();
     }
 }
+
+internal sealed record Message(int Identifier, Memory<byte> Memory)
+{
+    public T As<T>() where T : IIngoingPacket<T>
+    {
+        if (T.Identifier != Identifier)
+        {
+            throw new ArgumentException($"Expected {T.Identifier} but got {Identifier} instead.");
+        }
+
+        var reader = new MemoryReader(Memory[1..]);
+        return T.Read(reader);
+    }
+}

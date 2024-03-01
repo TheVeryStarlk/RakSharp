@@ -1,5 +1,5 @@
 # RakSharp
-A simple and light RakNet library that was designed to work with Minecraft: Bedrock edition. 
+A simple RakNet library that was designed to work with Minecraft: Bedrock edition. 
 This library makes assumptions about how the protocol works to achieve compatibility with Minecraft.
 
 ## Usage
@@ -14,7 +14,7 @@ var pong = await RakSession.PingAsync(new RakSessionOptions
 });
 ```
 
-#### Conecting to a server
+#### Connecting to a server
 ```cs
 await using var connection = await RakConnection.ConnectAsync(new RakConnectionOptions
 {
