@@ -16,5 +16,6 @@ await using var connection = await RakConnection.ConnectAsync(new RakConnectionO
     MaximumTransmissionUnit = 1492
 });
 
-Console.ReadLine();
+var memory = await connection.ReadAsync();
+Console.WriteLine(string.Join(", ", memory.ToArray()));
 await connection.DisconnectAsync();

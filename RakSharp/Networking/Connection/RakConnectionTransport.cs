@@ -22,7 +22,7 @@ internal sealed class RakConnectionTransport(RakClient client, CancellationToken
             {
                 messages[index] = new Message(
                     frameSet.Frames[index].Memory.Span[0],
-                    frameSet.Frames[index].Memory[1..]);
+                    frameSet.Frames[index].Memory);
             }
 
             return messages;

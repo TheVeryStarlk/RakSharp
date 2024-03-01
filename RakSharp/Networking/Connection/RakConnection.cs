@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Threading.Channels;
 using RakSharp.Networking.Session;
 using RakSharp.Packets.Offline;
 using RakSharp.Packets.Online;
@@ -16,6 +17,7 @@ public sealed class RakConnection : IRakConnection
     private RakConnectionState state = RakConnectionState.Connected;
 
     private readonly CancellationTokenSource source = new CancellationTokenSource();
+    private readonly Channel<Memory<byte>> outgoingChannel = Channel.CreateUnbounded<Memory<byte>>();
     private readonly RakConnectionTransport transport;
     private readonly RakClient client;
 
@@ -54,9 +56,9 @@ public sealed class RakConnection : IRakConnection
         return connection;
     }
 
-    public Task<Memory<byte>> ReadAsync(CancellationToken token = default)
+    public async Task<Memory<byte>> ReadAsync(CancellationToken token = default)
     {
-        throw new NotImplementedException();
+        return await outgoingChannel.Reader.ReadAsync(token);
     }
 
     public Task WriteAsync(
@@ -124,6 +126,10 @@ public sealed class RakConnection : IRakConnection
                                 Reliability.Unreliable);
 
                             state = RakConnectionState.Connected;
+                            break;
+
+                        default:
+                            await outgoingChannel.Writer.WriteAsync(message.Memory);
                             break;
                     }
                 }

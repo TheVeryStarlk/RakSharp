@@ -26,7 +26,7 @@ internal sealed class RakClient : IDisposable
     {
         var memory = new byte[RakSharp.MaximumTransmissionUnit].AsMemory();
         memory = memory[..await socket.ReceiveAsync(memory, cancellationToken)];
-        return new Message(memory.Span[0], memory[1..]);
+        return new Message(memory.Span[0], memory);
     }
 
     public async Task WriteAsync<T>(T packet, CancellationToken cancellationToken) where T : IOutgoingPacket
