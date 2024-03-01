@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.IO.Pipelines;
 using CommunityToolkit.HighPerformance.Buffers;
 using RakSharp.Packets;
 using RakSharp.Packets.Online.FrameSet;
@@ -22,7 +21,7 @@ internal sealed class RakConnectionTransport(RakClient client, CancellationToken
             for (var index = 0; index < messages.Length; index++)
             {
                 messages[index] = new Message(
-                    frameSet.Frames[index].Memory.Span[1],
+                    frameSet.Frames[index].Memory.Span[0],
                     frameSet.Frames[index].Memory[1..]);
             }
 
