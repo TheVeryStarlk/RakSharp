@@ -46,7 +46,7 @@ public static class RakSession
             new UnconnectedPingPacket
             {
                 Time = DateTime.UtcNow.Millisecond,
-                Client = Random.Shared.NextInt64()
+                Client = client.Identifier
             },
             timeOutSource.Token);
 

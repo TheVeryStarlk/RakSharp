@@ -17,6 +17,8 @@ internal sealed class RakClient : ConnectionContext
 
     public override IDictionary<object, object?> Items { get; set; } = new ConnectionItems();
 
+    public long Identifier { get; } = Random.Shared.NextInt64();
+
     private volatile bool aborted;
 
     private readonly Socket socket;
@@ -37,7 +39,7 @@ internal sealed class RakClient : ConnectionContext
     public static async Task<RakClient> ConnectAsync(IPEndPoint remoteEndPoint)
     {
         var client = new RakClient(remoteEndPoint);
-        await client.StartAsync();
+        _ = await client.StartAsync();
         return client;
     }
 

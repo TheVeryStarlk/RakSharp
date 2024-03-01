@@ -3,7 +3,7 @@ using System.IO.Pipelines;
 
 namespace RakSharp.Packets;
 
-internal static class DuplexPipeExtensions
+internal static class PacketExtensions
 {
     public static async Task<Message> ReadAsync(
         this IDuplexPipe duplexPipe,
@@ -23,17 +23,16 @@ internal static class DuplexPipeExtensions
         CancellationToken cancellationToken) where T : IOutgoingPacket
     {
         var memory = duplexPipe.Output.GetMemory();
-        duplexPipe.Output.Advance(Write(packet, memory));
+        duplexPipe.Output.Advance(packet.Write<T>(memory));
         await duplexPipe.Output.FlushAsync(cancellationToken);
-        return;
+    }
 
-        static int Write(IOutgoingPacket packet, Memory<byte> memory)
-        {
-            var writer = new MemoryWriter(memory);
-            writer.WriteByte(T.Identifier);
-            packet.Write(ref writer);
-            return writer.Position;
-        }
+    public static int Write<T>(this IOutgoingPacket packet, Memory<byte> memory) where T : IOutgoingPacket
+    {
+        var writer = new MemoryWriter(memory);
+        writer.WriteByte(T.Identifier);
+        packet.Write(ref writer);
+        return writer.Position;
     }
 }
 

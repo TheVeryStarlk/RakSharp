@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using RakSharp.Networking.Session;
 using RakSharp.Packets;
+using RakSharp.Packets.Offline;
+using RakSharp.Packets.Online;
 using RakSharp.Packets.Online.FrameSet;
 
 namespace RakSharp.Networking.Connection;
@@ -8,18 +10,23 @@ namespace RakSharp.Networking.Connection;
 /// <inheritdoc />
 public sealed class RakConnection : IRakConnection
 {
-    public IPEndPoint RemoteEndPoint => throw new NotImplementedException();
+    public IPEndPoint RemoteEndPoint { get; }
 
-    public short MaximumTransmissionUnit => throw new NotImplementedException();
+    public short MaximumTransmissionUnit { get; private set; }
 
-    private RakConnectionState state;
+    private RakConnectionState state = RakConnectionState.Connected;
 
     private readonly CancellationTokenSource source = new CancellationTokenSource();
+    private readonly RakConnectionTransport transport;
     private readonly RakClient client;
 
-    private RakConnection(RakClient client)
+    private RakConnection(RakClient client, IPEndPoint remoteEndPoint, short maximumTransmissionUnit)
     {
         this.client = client;
+        transport = new RakConnectionTransport(client.Transport, source.Token);
+
+        RemoteEndPoint = remoteEndPoint;
+        MaximumTransmissionUnit = maximumTransmissionUnit;
     }
 
     /// <summary>
@@ -39,7 +46,11 @@ public sealed class RakConnection : IRakConnection
             TimeOut = options.TimeOut
         });
 
-        var connection = new RakConnection(await RakClient.ConnectAsync(options.RemoteEndPoint));
+        var connection = new RakConnection(
+            await RakClient.ConnectAsync(options.RemoteEndPoint),
+            options.RemoteEndPoint,
+            options.MaximumTransmissionUnit);
+
         _ = connection.StartAsync();
         return connection;
     }
@@ -59,12 +70,13 @@ public sealed class RakConnection : IRakConnection
 
     public async Task DisconnectAsync()
     {
-        await source.CancelAsync();
-
         if (state is RakConnectionState.Handshaking or RakConnectionState.Disconnected)
         {
             return;
         }
+
+        await transport.WriteAsync<DisconnectPacket>(new DisconnectPacket(), Reliability.Unreliable);
+        await source.CancelAsync();
 
         state = RakConnectionState.Disconnected;
     }
@@ -76,11 +88,45 @@ public sealed class RakConnection : IRakConnection
 
     private async Task StartAsync()
     {
+        await HandleHandshakeAsync();
+
         while (!source.IsCancellationRequested)
         {
             try
             {
+                var messages = await transport.ReadAsync();
 
+                foreach (var message in messages)
+                {
+                    switch (message.Identifier)
+                    {
+                        case 0x00:
+                            var ping = message.As<ConnectedPingPacket>();
+
+                            await transport.WriteAsync<ConnectedPongPacket>(
+                                new ConnectedPongPacket
+                                {
+                                    Ping = ping.Time,
+                                    Pong = ping.Time
+                                },
+                                Reliability.Unreliable);
+
+                            break;
+
+                        case 0x10:
+                            _ = message.As<ConnectionRequestAcceptedPacket>();
+
+                            await transport.WriteAsync<NewIncomingConnectionPacket>(
+                                new NewIncomingConnectionPacket
+                                {
+                                    Server = RemoteEndPoint
+                                },
+                                Reliability.Unreliable);
+
+                            state = RakConnectionState.Connected;
+                            break;
+                    }
+                }
             }
             catch (Exception exception)
             {
@@ -88,6 +134,44 @@ public sealed class RakConnection : IRakConnection
                 throw;
             }
         }
+
+        await DisposeAsync();
+    }
+
+    private async Task HandleHandshakeAsync()
+    {
+        await client.Transport.WriteAsync(new OpenConnectionRequestFirstPacket
+            {
+                ProtocolVersion = RakSharp.ProtocolVersion,
+                MaximumTransmissionUnit = MaximumTransmissionUnit
+            },
+            source.Token);
+
+        var message = await client.Transport.ReadAsync(source.Token);
+        var replyFirst = message.As<OpenConnectionReplyFirstPacket>();
+
+        MaximumTransmissionUnit = replyFirst.MaximumTransmissionUnit;
+
+        await client.Transport.WriteAsync(new OpenConnectionRequestSecondPacket
+            {
+                Server = RemoteEndPoint,
+                MaximumTransmissionUnit = MaximumTransmissionUnit,
+                Client = client.Identifier
+            },
+            source.Token);
+
+        message = await client.Transport.ReadAsync(source.Token);
+        var replySecond = message.As<OpenConnectionReplySecondPacket>();
+        MaximumTransmissionUnit = replySecond.MaximumTransmissionUnit;
+
+        await transport.WriteAsync<ConnectionRequestPacket>(
+            new ConnectionRequestPacket
+            {
+                Client = client.Identifier,
+                Time = DateTime.UtcNow.Millisecond,
+                UseSecurity = false
+            },
+            Reliability.Unreliable);
     }
 }
 
