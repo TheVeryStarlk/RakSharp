@@ -13,17 +13,23 @@ internal sealed class RakConnectionTransport(IDuplexPipe duplexPipe, Cancellatio
     public async Task<Message[]> ReadAsync()
     {
         var message = await duplexPipe.ReadAsync(token);
-        var frameSet = message.As<FrameSetPacket>();
 
-        var messages = new Message[frameSet.Frames.Length];
-        for (var index = 0; index < messages.Length; index++)
+        if (message.Identifier is 0x80)
         {
-            messages[index] = new Message(
-                frameSet.Frames[index].Memory.Span[1],
-                frameSet.Frames[index].Memory[1..]);
+            var frameSet = message.As<FrameSetPacket>();
+            var messages = new Message[frameSet.Frames.Length];
+
+            for (var index = 0; index < messages.Length; index++)
+            {
+                messages[index] = new Message(
+                    frameSet.Frames[index].Memory.Span[1],
+                    frameSet.Frames[index].Memory[1..]);
+            }
+
+            return messages;
         }
 
-        return messages;
+        return Array.Empty<Message>();
     }
 
     public async Task WriteAsync<T>(IOutgoingPacket packet, Reliability reliability)
