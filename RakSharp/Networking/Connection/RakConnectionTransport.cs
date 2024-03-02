@@ -61,6 +61,11 @@ internal sealed class RakConnectionTransport(RakClient client, CancellationToken
                     }
                 }
 
+                break;
+
+            case 0xA0:
+                _ = message.As<NegativeAcknowledgementPacket>();
+
                 foreach (var unacknowledged in unacknowledgedMessages)
                 {
                     await WriteAsync(unacknowledged.SequenceNumber, unacknowledged.Memory, Reliability.Unreliable);
@@ -81,9 +86,9 @@ internal sealed class RakConnectionTransport(RakClient client, CancellationToken
         var memory = new byte[RakNet.MaximumTransmissionUnit].AsMemory();
         memory = memory[..packet.Write(memory)];
 
-        sequenceNumber++;
         unacknowledgedMessages.Add((sequenceNumber, memory));
         await WriteAsync(sequenceNumber, memory, reliability);
+        sequenceNumber++;
     }
 
     private async Task WriteAsync(int number, Memory<byte> memory, Reliability reliability)
