@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using RakSharp;
 using RakSharp.Networking.Connection;
 
 // var status = await RakSession.PingAsync(new RakSessionOptions
@@ -13,7 +14,7 @@ await using var connection = await RakConnection.ConnectAsync(new RakConnectionO
 {
     RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 19132),
     TimeOut = TimeSpan.FromSeconds(5),
-    MaximumTransmissionUnit = 1492
+    MaximumTransmissionUnit = RakNet.MaximumTransmissionUnit
 });
 
 var memory = await connection.ReadAsync();
