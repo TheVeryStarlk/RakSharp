@@ -14,7 +14,7 @@ public sealed class RakConnection : IRakConnection
 
     public short MaximumTransmissionUnit { get; private set; }
 
-    private RakConnectionState state = RakConnectionState.Connected;
+    private RakConnectionState state;
 
     private readonly CancellationTokenSource source = new CancellationTokenSource();
     private readonly Channel<Memory<byte>> outgoingChannel = Channel.CreateUnbounded<Memory<byte>>();
@@ -94,51 +94,13 @@ public sealed class RakConnection : IRakConnection
 
         while (!source.IsCancellationRequested)
         {
-            try
+            var messages = await transport.ReadAsync();
+
+            foreach (var message in messages)
             {
-                var messages = await transport.ReadAsync();
-
-                foreach (var message in messages)
-                {
-                    switch (message.Identifier)
-                    {
-                        case 0x00:
-                            var ping = message.As<ConnectedPingPacket>();
-
-                            await transport.WriteAsync(
-                                new ConnectedPongPacket
-                                {
-                                    Ping = ping.Time,
-                                    Pong = ping.Time
-                                },
-                                Reliability.Unreliable);
-
-                            break;
-
-                        case 0x10:
-                            _ = message.As<ConnectionRequestAcceptedPacket>();
-                            state = RakConnectionState.Connected;
-
-                            await transport.WriteAsync(
-                                new NewIncomingConnectionPacket
-                                {
-                                    Server = RemoteEndPoint
-                                },
-                                Reliability.Unreliable);
-
-                            break;
-
-                        default:
-                            await outgoingChannel.Writer.WriteAsync(message.Memory);
-                            break;
-                    }
-                }
+                await HandleConnectionAsync(message);
             }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception);
-                throw;
-            }
+
         }
 
         await DisposeAsync();
@@ -149,14 +111,13 @@ public sealed class RakConnection : IRakConnection
         await client.WriteAsync(
             new OpenConnectionRequestFirstPacket
             {
-                ProtocolVersion = RakSharp.ProtocolVersion,
+                ProtocolVersion = RakNet.ProtocolVersion,
                 MaximumTransmissionUnit = MaximumTransmissionUnit
             },
             source.Token);
 
         var message = await client.ReadAsync(source.Token);
         var replyFirst = message.As<OpenConnectionReplyFirstPacket>();
-
         MaximumTransmissionUnit = replyFirst.MaximumTransmissionUnit;
 
         await client.WriteAsync(
@@ -180,6 +141,42 @@ public sealed class RakConnection : IRakConnection
                 UseSecurity = false
             },
             Reliability.Unreliable);
+    }
+
+    private async Task HandleConnectionAsync(Message message)
+    {
+        switch (message.Identifier)
+        {
+            case 0x00:
+                var ping = message.As<ConnectedPingPacket>();
+
+                await transport.WriteAsync(
+                    new ConnectedPongPacket
+                    {
+                        Ping = ping.Time,
+                        Pong = ping.Time
+                    },
+                    Reliability.Unreliable);
+
+                break;
+
+            case 0x10:
+                _ = message.As<ConnectionRequestAcceptedPacket>();
+                state = RakConnectionState.Connected;
+
+                await transport.WriteAsync(
+                    new NewIncomingConnectionPacket
+                    {
+                        Server = RemoteEndPoint
+                    },
+                    Reliability.Unreliable);
+
+                break;
+
+            default:
+                await outgoingChannel.Writer.WriteAsync(message.Memory);
+                break;
+        }
     }
 }
 

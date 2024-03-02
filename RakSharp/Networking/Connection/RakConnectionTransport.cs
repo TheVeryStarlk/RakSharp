@@ -78,7 +78,7 @@ internal sealed class RakConnectionTransport(RakClient client, CancellationToken
     {
         Debug.Assert(reliability is Reliability.Unreliable);
 
-        var memory = new byte[RakSharp.MaximumTransmissionUnit].AsMemory();
+        var memory = new byte[RakNet.MaximumTransmissionUnit].AsMemory();
         memory = memory[..packet.Write(memory)];
 
         sequenceNumber++;

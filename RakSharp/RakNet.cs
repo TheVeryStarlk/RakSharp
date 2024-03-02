@@ -1,9 +1,9 @@
 ﻿namespace RakSharp;
 
 /// <summary>
-/// Stores useful information used throughout the code-base.
+/// Stores useful information used throughout the code-base about the protocol.
 /// </summary>
-public static class RakSharp
+public static class RakNet
 {
     /// <summary>
     /// The supported protocol version of RakNet.
@@ -13,5 +13,5 @@ public static class RakSharp
     /// <summary>
     /// The highest "possible" value for a maximum transmission unit.
     /// </summary>
-    public static short MaximumTransmissionUnit => 1500;
+    public static short MaximumTransmissionUnit => 1472;
 }
