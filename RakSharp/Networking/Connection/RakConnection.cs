@@ -58,7 +58,14 @@ public sealed class RakConnection : IRakConnection
 
     public async Task<Memory<byte>> ReadAsync(CancellationToken token = default)
     {
-        return await outgoingChannel.Reader.ReadAsync(token);
+        try
+        {
+            return await outgoingChannel.Reader.ReadAsync(token);
+        }
+        catch (OperationCanceledException)
+        {
+            return Memory<byte>.Empty;
+        }
     }
 
     public Task WriteAsync(
@@ -94,13 +101,10 @@ public sealed class RakConnection : IRakConnection
 
         while (!source.IsCancellationRequested)
         {
-            var messages = await transport.ReadAsync();
-
-            foreach (var message in messages)
+            foreach (var message in await transport.ReadAsync())
             {
                 await HandleConnectionAsync(message);
             }
-
         }
 
         await DisposeAsync();

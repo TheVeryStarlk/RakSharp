@@ -10,6 +10,14 @@ using RakSharp.Networking.Connection;
 //
 // Console.WriteLine(status.Message);
 
+var source = new CancellationTokenSource();
+
+Console.CancelKeyPress += (_, eventArgs) =>
+{
+    eventArgs.Cancel = true;
+    source.Cancel();
+};
+
 await using var connection = await RakConnection.ConnectAsync(new RakConnectionOptions
 {
     RemoteEndPoint = new IPEndPoint(IPAddress.Loopback, 19132),
@@ -17,6 +25,6 @@ await using var connection = await RakConnection.ConnectAsync(new RakConnectionO
     MaximumTransmissionUnit = RakNet.MaximumTransmissionUnit
 });
 
-var memory = await connection.ReadAsync();
+var memory = await connection.ReadAsync(source.Token);
 Console.WriteLine(string.Join(", ", memory.ToArray()));
 await connection.DisconnectAsync();
