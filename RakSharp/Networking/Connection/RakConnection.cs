@@ -76,7 +76,7 @@ public sealed class RakConnection : IRakConnection
             return;
         }
 
-        await transport.WriteAsync<DisconnectPacket>(new DisconnectPacket(), Reliability.Unreliable);
+        await transport.WriteAsync(new DisconnectPacket(), Reliability.Unreliable);
         await source.CancelAsync();
         client.Disconnect();
         state = RakConnectionState.Disconnected;
@@ -105,7 +105,7 @@ public sealed class RakConnection : IRakConnection
                         case 0x00:
                             var ping = message.As<ConnectedPingPacket>();
 
-                            await transport.WriteAsync<ConnectedPongPacket>(
+                            await transport.WriteAsync(
                                 new ConnectedPongPacket
                                 {
                                     Ping = ping.Time,
@@ -117,15 +117,15 @@ public sealed class RakConnection : IRakConnection
 
                         case 0x10:
                             _ = message.As<ConnectionRequestAcceptedPacket>();
+                            state = RakConnectionState.Connected;
 
-                            await transport.WriteAsync<NewIncomingConnectionPacket>(
+                            await transport.WriteAsync(
                                 new NewIncomingConnectionPacket
                                 {
                                     Server = RemoteEndPoint
                                 },
                                 Reliability.Unreliable);
 
-                            state = RakConnectionState.Connected;
                             break;
 
                         default:
@@ -146,7 +146,8 @@ public sealed class RakConnection : IRakConnection
 
     private async Task HandleHandshakeAsync()
     {
-        await client.WriteAsync(new OpenConnectionRequestFirstPacket
+        await client.WriteAsync(
+            new OpenConnectionRequestFirstPacket
             {
                 ProtocolVersion = RakSharp.ProtocolVersion,
                 MaximumTransmissionUnit = MaximumTransmissionUnit
@@ -158,7 +159,8 @@ public sealed class RakConnection : IRakConnection
 
         MaximumTransmissionUnit = replyFirst.MaximumTransmissionUnit;
 
-        await client.WriteAsync(new OpenConnectionRequestSecondPacket
+        await client.WriteAsync(
+            new OpenConnectionRequestSecondPacket
             {
                 Server = RemoteEndPoint,
                 MaximumTransmissionUnit = MaximumTransmissionUnit,
@@ -170,7 +172,7 @@ public sealed class RakConnection : IRakConnection
         var replySecond = message.As<OpenConnectionReplySecondPacket>();
         MaximumTransmissionUnit = replySecond.MaximumTransmissionUnit;
 
-        await transport.WriteAsync<ConnectionRequestPacket>(
+        await transport.WriteAsync(
             new ConnectionRequestPacket
             {
                 Client = client.Identifier,
