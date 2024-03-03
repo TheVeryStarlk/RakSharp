@@ -106,8 +106,6 @@ public sealed class RakConnection : IRakConnection
                 await HandleConnectionAsync(message);
             }
         }
-
-        await DisposeAsync();
     }
 
     private async Task HandleHandshakeAsync()
