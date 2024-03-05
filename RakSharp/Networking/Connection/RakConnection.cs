@@ -78,7 +78,7 @@ public sealed class RakConnection : IRakConnection
 
     public async Task DisconnectAsync()
     {
-        if (state is RakConnectionState.Handshaking or RakConnectionState.Disconnected)
+        if (state is RakConnectionState.Disconnected)
         {
             return;
         }
